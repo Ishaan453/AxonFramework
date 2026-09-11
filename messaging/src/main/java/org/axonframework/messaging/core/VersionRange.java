@@ -43,6 +43,9 @@ record VersionRange(String from, String to) implements VersionSpecifier {
 
     @Override
     public boolean matches(String version) {
+        if (version == null) {
+            return false;
+        }
         return compareVersions(from, version) <= 0
                 && compareVersions(version, to) <= 0;
     }
