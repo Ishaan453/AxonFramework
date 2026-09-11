@@ -33,6 +33,7 @@ class VersionSpecifierTest {
             assertTrue(specifier.matches("2.5.1"));
             assertTrue(specifier.matches("anything"));
             assertTrue(specifier.matches(""));
+            assertTrue(specifier.matches(null));
         }
 
         @Test
@@ -55,6 +56,7 @@ class VersionSpecifierTest {
             assertFalse(specifier.matches("1.1"));
             assertFalse(specifier.matches("2.0"));
             assertFalse(specifier.matches("0.9"));
+            assertFalse(specifier.matches(null));
         }
 
         @Test
@@ -126,6 +128,35 @@ class VersionSpecifierTest {
         void fallsBackToLexicographicalForNonNumeric() {
             assertTrue(VersionRange.compareVersions("1.0-alpha", "1.0-beta") < 0);
             assertTrue(VersionRange.compareVersions("v1", "v2") < 0);
+        }
+    }
+
+    @Nested
+    class ParseTest {
+
+        @Test
+        void parseEmptyOrNullReturnsAny() {
+            assertEquals(VersionSpecifier.any(), VersionSpecifier.parse(null));
+            assertEquals(VersionSpecifier.any(), VersionSpecifier.parse(""));
+            assertEquals(VersionSpecifier.any(), VersionSpecifier.parse("   "));
+        }
+
+        @Test
+        void parseSingleVersionReturnsExact() {
+            VersionSpecifier specifier = VersionSpecifier.parse("1.2.3");
+            assertTrue(specifier.matches("1.2.3"));
+            assertFalse(specifier.matches("1.2.4"));
+        }
+
+        @Test
+        void parseRangeReturnsRange() {
+            VersionSpecifier specifier = VersionSpecifier.parse("1.0 - 2.0");
+            assertTrue(specifier.matches("1.0"));
+            assertTrue(specifier.matches("1.5"));
+            assertTrue(specifier.matches("2.0"));
+            assertFalse(specifier.matches("0.9"));
+            assertFalse(specifier.matches("2.1"));
+            assertFalse(specifier.matches(null));
         }
     }
 }

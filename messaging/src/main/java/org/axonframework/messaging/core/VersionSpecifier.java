@@ -61,6 +61,30 @@ public interface VersionSpecifier {
     }
 
     /**
+     * Parses a string representation of a version specifier into a {@link VersionSpecifier} instance.
+     * <p>
+     * The following formats are supported:
+     * <ul>
+     * <li>Empty string or {@code null} returns {@link #any()}</li>
+     * <li>A single version (e.g., {@code "1.0"}) returns an exact match specifier</li>
+     * <li>A range separated by a hyphen (e.g., {@code "1.0-2.0"}) returns a range specifier</li>
+     * </ul>
+     *
+     * @param spec The string representation of the version specifier.
+     * @return A {@code VersionSpecifier} corresponding to the parsed string.
+     */
+    static VersionSpecifier parse(String spec) {
+        if (spec == null || spec.trim().isEmpty()) {
+            return any();
+        }
+        String[] parts = spec.split("-", 2);
+        if (parts.length == 2) {
+            return range(parts[0].trim(), parts[1].trim());
+        }
+        return exact(spec.trim());
+    }
+
+    /**
      * Returns a {@code VersionSpecifier} that matches versions within the inclusive range {@code [from, to]}.
      * <p>
      * Versions are compared segment by segment (split on {@code '.'}), with each segment parsed as an integer where
